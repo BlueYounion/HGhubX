@@ -171,30 +171,6 @@ jobs:
 
       - name: 生成 Android 工程
         run: pnpm tauri android init --ci
-      - name: Pre-check signer with apksigner dry-run
-        env:
-          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEY_BASE64 }}
-          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          # KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: |    
-          set -euo pipefail
-          if [ -z "${KEYSTORE_BASE64:-}" ]; then
-            echo "::error::缺少 ANDROID_KEY_BASE64 secret，无法签名"; exit 1
-          fi
-          KS="$RUNNER_TEMP/release.keystore"
-          echo "$KEYSTORE_BASE64" | base64 -d > "$KS"
-
-          BT="$(ls "$ANDROID_SDK_ROOT/build-tools" | sort -V | tail -1)"
-          APKSIGNER="$ANDROID_SDK_ROOT/build-tools/$BT/apksigner"
-          touch $RUNNER_TEMP/dummy.apk
-          "$APKSIGNER" sign \
-            --ks "$KS" \
-            --ks-key-alias "$KEY_ALIAS" \
-            --ks-pass "pass:$STORE_PASSWORD" \
-            --pass-encoding utf-8 \
-            --v4-signing-enabled false \
-            --dry-run $RUNNER_TEMP/dummy.apk
 
       - name: 编译 APK（按 ABI 分包）
         run: |
