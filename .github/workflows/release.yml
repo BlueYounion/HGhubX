@@ -184,8 +184,11 @@ jobs:
           fi
           KS="$RUNNER_TEMP/release.keystore"
           echo "$KEYSTORE_BASE64" | base64 -d > "$KS"
+
+          BT="$(ls "$ANDROID_SDK_ROOT/build-tools" | sort -V | tail -1)"
+          APKSIGNER="$ANDROID_SDK_ROOT/build-tools/$BT/apksigner"
           touch $RUNNER_TEMP/dummy.apk
-          apksigner sign \
+          "$APKSIGNER" sign \
             --ks "$KS" \
             --ks-key-alias "$KEY_ALIAS" \
             --ks-pass "pass:$STORE_PASSWORD" \
